@@ -40,12 +40,13 @@ graph TD
     style E fill:#f3e5f5
 ```
 
-Key Benefits:
-▸ Factual answers backed by source documents
-▸ Runs entirely on CPU (no GPU required)
-▸ Works offline with local models (no API costs)
-▸ Enterprise vector storage with IBM Db2's native vector features
-▸ Seamless LangChain integration via official Db2 connector
+**Key Benefits:**
+
+▸ Factual answers backed by source documents  
+▸ Runs entirely on CPU (no GPU required)  
+▸ Works offline with local models (no API costs)  
+▸ **Enterprise vector storage with IBM Db2's native vector features**  
+▸ **Seamless LangChain integration via official Db2 connector**  
 ▸ Full control over embedding and generation models
 
 ---
