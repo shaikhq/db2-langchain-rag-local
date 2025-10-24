@@ -18,7 +18,6 @@ This project showcases **IBM Db2's powerful vector capabilities**:
 - 🏢 **Enterprise-Grade**: Production-ready vector storage with ACID compliance
 
 ### Pipeline Architecture
-
 ```mermaid
 graph TD
     A[🌐 Web Article URL] --> B[📥 Trafilatura<br/>Extract Content]
@@ -65,7 +64,6 @@ graph TD
 ## ⚙️ Quick Setup
 
 ### 1. Clone Repository
-
 ```bash
 git clone https://github.com/shaikhq/db2-langchain-rag-local.git
 cd db2-langchain-rag-local
@@ -74,19 +72,27 @@ cd db2-langchain-rag-local
 Or download and extract the ZIP file.
 
 ### 2. Environment & Dependencies
-
 ```bash
-# Create virtual environment with uv
-uv venv --python $(which python3.13)
+# Clear cache to avoid architecture conflicts (especially on Apple Silicon)
+uv cache clean
 
-# Install dependencies
+# Remove old virtual environment if it exists
+rm -rf .venv
+
+# Create virtual environment
+uv venv
+
+# Install dependencies from requirements.txt
 uv pip install -r requirements.txt
 
-# Install pip
-uv run python -m ensurepip --upgrade
+# Add pip (required for spacy model downloads)
+uv pip install pip
 
-# Install spaCy language model
+# Download spaCy language model
 uv run python -m spacy download en_core_web_sm
+
+# Verify installation
+uv run python -c "import spacy; nlp = spacy.load('en_core_web_sm'); print('✓ Setup complete!')"
 ```
 
 ### 3. Download Models
@@ -107,13 +113,11 @@ wget https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen
 ### 4. Configure Environment
 
 Create `.env` file in project root:
-
 ```bash
 touch .env
 ```
 
 Add the following entries with correct values to the .env file:
-
 ```bash
 # IBM Db2 Configuration
 DB_NAME=your_database
@@ -148,7 +152,6 @@ pwd  # Use this output as base for your paths
 ## 🔍 Usage
 
 ### Launch Jupyter
-
 ```bash
 jupyter notebook rag-basic.ipynb
 ```
@@ -156,7 +159,6 @@ jupyter notebook rag-basic.ipynb
 ### Ask Questions
 
 The notebook creates a `rag` chain that you can query:
-
 ```python
 # Ask a question
 result = rag.invoke('How to build a linear regression model in Db2?')
@@ -194,7 +196,6 @@ for i, doc in enumerate(result['source_documents']):
 ---
 
 ## 🛠️ Key Configuration
-
 ```python
 # Text Chunking
 overlapping_sentence_chunker(
@@ -255,7 +256,6 @@ vectorstore.as_retriever(
 ## 🖥️ Optional: VS Code + Jupyter Setup
 
 If using VS Code with Jupyter:
-
 ```bash
 # Register kernel
 uv run python -m ipykernel install --user \
