@@ -82,6 +82,9 @@ uv venv --python $(which python3.13)
 # Install dependencies
 uv pip install -r requirements.txt
 
+# Install pip
+uv run python -m ensurepip --upgrade
+
 # Install spaCy language model
 uv run python -m spacy download en_core_web_sm
 ```
@@ -96,18 +99,20 @@ wget -O granite-embedding-30m-english-Q6_K.gguf \
 
 **LLM Model** (7B parameters, ~4.4GB):
 ```bash
-# Option 1: From bartowski repo (recommended)
 wget https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf
-
-# Option 2: From paultimothymooney repo (alternative)
-wget https://huggingface.co/paultimothymooney/Qwen2.5-7B-Instruct-Q4_K_M-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf
 ```
 
 **Note:** Both LLM options are the same model with different filenames. Choose one.
 
 ### 4. Configure Environment
 
-Create `.env` in project root:
+Create `.env` file in project root:
+
+```bash
+touch .env
+```
+
+Add the following entries with correct values to the .env file:
 
 ```bash
 # IBM Db2 Configuration
@@ -119,8 +124,8 @@ DB_USER=your_username
 DB_PASSWORD=your_password
 
 # Model Paths (MUST be absolute paths)
-LLM_PATH=/full/path/to/Qwen2.5-7B-Instruct-Q4_K_M.gguf
-EMBEDDING_MODEL_PATH=/full/path/to/granite-embedding-30m-english-Q6_K.gguf
+LLM_PATH=/full/path/to/text_generation_model.gguf
+EMBEDDING_MODEL_PATH=/full/path/to/embedding_generation_modeul.gguf
 ```
 
 **Example paths:**
