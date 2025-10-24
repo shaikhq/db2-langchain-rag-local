@@ -108,8 +108,6 @@ wget -O granite-embedding-30m-english-Q6_K.gguf \
 wget https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf
 ```
 
-**Note:** Both LLM options are the same model with different filenames. Choose one.
-
 ### 4. Configure Environment
 
 Create `.env` file in project root:
