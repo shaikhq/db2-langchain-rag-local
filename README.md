@@ -66,8 +66,10 @@ graph TD
 ### 1. Download Models
 
 Navigate to the folder where you want to download the models:
+
+e.g.,
 ```bash
-cd /path/to/models  # e.g., /more_storage/models
+cd /more_storage/models
 ```
 
 **Embedding Model** (30M parameters, ~17MB):
