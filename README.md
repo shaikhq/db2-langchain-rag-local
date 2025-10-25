@@ -65,14 +65,14 @@ graph TD
 
 ### 1. Download Models
 
-Navigate to the folder where you want to download the models:
+Using terminal or command prompt, navigate to the folder where you want to download the models:
 
 e.g.,
 ```bash
 cd /more_storage/models
 ```
 
-**Embedding Model** (30M parameters, ~17MB):
+**Embedding Model** (30M parameters, ~32MB):
 ```bash
 wget -O granite-embedding-30m-english-Q6_K.gguf \
   https://huggingface.co/lmstudio-community/granite-embedding-30m-english-GGUF/resolve/main/granite-embedding-30m-english-Q6_K.gguf
@@ -87,23 +87,31 @@ wget -O qwen2.5-3b-instruct-q4_k_m.gguf \
 ### 2. Clone Repository
 ```bash
 git clone https://github.com/shaikhq/db2-langchain-rag-local.git
+```
+
+Go to the project directory:
+```bash
 cd db2-langchain-rag-local
 ```
 
-Or download and extract the ZIP file.
-
 ### 3. Environment & Dependencies
+Create virtual environment:
 ```bash
-# Create virtual environment
 uv venv --python $(which python3.13)
+```
 
-# Install dependencies from requirements.txt
+Install dependencies:
+```bash
 uv pip install -r requirements.txt
+```
 
-# Install pip (required for spacy model downloads)
+Install pip:
+```bash
 uv pip install pip
+```
 
-# Download spaCy language model
+Download spaCy language model:
+```bash
 uv run python -m spacy download en_core_web_sm
 ```
 
@@ -129,31 +137,17 @@ LLM_PATH=/absolute/path/to/qwen2.5-3b-instruct-q4_k_m.gguf
 EMBEDDING_MODEL_PATH=/absolute/path/to/granite-embedding-30m-english-Q6_K.gguf
 ```
 
-**Example:**
-```bash
-# Get your current directory
-pwd
 
-# Use the output to construct absolute paths
-LLM_PATH=/home/user/models/qwen2.5-3b-instruct-q4_k_m.gguf
-EMBEDDING_MODEL_PATH=/home/user/models/granite-embedding-30m-english-Q6_K.gguf
-```
-
-**⚠️ Important:** 
-- Use absolute paths (starting with `/`)
-- Never commit `.env` to git (it's in `.gitignore`)
-- Verify paths exist: `ls -la $LLM_PATH`
-
----
-
-## 🚀 Usage
+## Usage
 
 ### Launch Jupyter
+Make sure your virtual environment is activated:
 ```bash
-# Make sure your virtual environment is activated
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+```
 
-# Start Jupyter
+Start Jupyter:
+```bash
 jupyter notebook rag-basic.ipynb
 ```
 
@@ -163,9 +157,6 @@ The notebook creates a `rag` chain that you can query:
 ```python
 # Ask a question
 result = rag.invoke('How to build a linear regression model in Db2?')
-
-# Display results (formatted)
-from IPython.display import display, Markdown
 
 markdown_output = f"""
 ## 💡 Answer
@@ -204,90 +195,6 @@ display(Markdown(markdown_output))
 | **6. LLM** | `LlamaCpp` | Qwen2.5-3B, 30 threads, CPU-only |
 | **7. RAG Chain** | `RetrievalQA` | Combines retrieval + generation |
 
----
-
-## 🛠️ Key Configuration
-
-### Text Chunking
-```python
-overlapping_sentence_chunker(
-    text=article,
-    max_words=200,        # Chunk size
-    overlap_words=50      # Overlap between chunks
-)
-```
-
-### Embedding Model (with CPU optimization)
-```python
-embeddings = LlamaCppEmbeddings(
-    model_path=EMBEDDING_MODEL_PATH,
-    n_ctx=2048,           # Context window
-    n_threads=16,         # Use half your CPU cores
-    n_batch=8,            # Small batch for embeddings
-    n_gpu_layers=0        # CPU-only
-)
-```
-
-### Vector Store
-```python
-vectorstore = DB2VS.from_texts(
-    texts=chunks,
-    embedding=embeddings,
-    client=connection,
-    table_name="Documents_EUCLIDEAN",
-    distance_strategy=DistanceStrategy.EUCLIDEAN_DISTANCE
-)
-```
-
-### LLM (CPU-optimized configuration)
-```python
-llm = LlamaCpp(
-    model_path=LLM_PATH,
-    n_gpu_layers=0,       # CPU-only mode
-    n_threads=30,         # Use most CPU cores (leave 2 for system)
-    n_batch=512,          # Batch processing
-    max_tokens=250,       # Max response length
-    n_ctx=2048,          # Context window
-    temperature=0.3,     # Low = factual, High = creative
-    top_p=0.9,
-    top_k=40,
-    repeat_penalty=1.1,
-    verbose=False        # Suppress debug output
-)
-```
-
-### Retriever
-```python
-retriever = vectorstore.as_retriever(
-    search_kwargs={"k": 3}    # Return top 3 chunks
-)
-```
-
----
-
-## 💭 Performance Tips (CPU Optimization)
-
-**For 32 CPU cores (as tested):**
-- Use `n_threads=30` for LLM (leave 2 cores for system)
-- Use `n_threads=16` for embeddings
-- Expected speed: ~10-20 tokens/sec with 3B model
-- Response time: ~30-60 seconds for 250 tokens
-
-**General optimizations:**
-- **Smaller Context**: Lower `n_ctx=1024` if prompts are short
-- **Shorter Responses**: Set `max_tokens=150` for faster replies
-- **Smaller Model**: Try 1.5B models for even faster inference
-- **Fewer Chunks**: Set `k=2` to retrieve less context
-- **Better Quantization**: Q4_K_M offers best speed/quality balance
-- **Increase Threads**: Match `n_threads` to your CPU core count (`nproc`)
-
-**Check your CPU cores:**
-```bash
-nproc  # Linux/Mac
-echo %NUMBER_OF_PROCESSORS%  # Windows
-```
-
----
 
 ## 🖥️ Optional: VS Code + Jupyter Setup
 
@@ -332,16 +239,6 @@ db2-langchain-rag-local/
 ├── .gitignore              # Git ignore rules
 └── README.md               # This file
 ```
-
----
-
-## 🔐 Security Notes
-
-- ⚠️ Never commit `.env` - it's in `.gitignore`
-- 🔒 Use read-only Db2 credentials when possible
-- 🛡️ Validate/sanitize URLs before scraping
-- 🚫 Don't expose model paths in logs or errors
-- 🔑 Rotate credentials regularly
 
 ---
 
