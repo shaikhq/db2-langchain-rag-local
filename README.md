@@ -351,7 +351,6 @@ db2-langchain-rag-local/
 
 ## 🙏 Acknowledgments
 
-- IBM Db2 team for native vector support
-- LangChain community for the Db2 connector
+- IBM Db2 team for native vector support and the Db2 connector
 - llama.cpp for efficient CPU inference
 - Qwen and IBM Granite model teams
