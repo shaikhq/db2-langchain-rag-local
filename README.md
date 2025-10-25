@@ -76,13 +76,11 @@ Or download and extract the ZIP file.
 # Create virtual environment
 uv venv --python $(which python3.13)
 
-# Activate virtual environment
-source .venv/bin/activate  # Linux/Mac
-# or
-.venv\Scripts\activate     # Windows
-
 # Install dependencies from requirements.txt
 uv pip install -r requirements.txt
+
+# Install pip (required for spacy model downloads)
+uv pip install pip
 
 # Download spaCy language model
 uv run python -m spacy download en_core_web_sm
@@ -103,11 +101,8 @@ wget -O granite-embedding-30m-english-Q6_K.gguf \
 
 **LLM Model** (3B parameters, ~2GB):
 ```bash
-# Recommended: Q4_K_M quantization (better quality)
-wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf
-
-# Alternative: Q3_K_M (smaller, slightly lower quality)
-# wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q3_k_m.gguf
+wget -O qwen2.5-3b-instruct-q4_k_m.gguf \
+  https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf
 ```
 
 ### 4. Configure Environment
