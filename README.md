@@ -343,24 +343,9 @@ db2-langchain-rag-local/
 
 ---
 
-## 📝 License
-
-[Add your license here]
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-
----
-
 ## 📧 Contact
 
-[Add your contact information]
+**Shaikh Quader** - [LinkedIn](https://www.linkedin.com/in/shaikhquader/)
 
 ---
 
