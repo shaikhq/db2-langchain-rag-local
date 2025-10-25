@@ -63,7 +63,13 @@ graph TD
 
 ## ⚙️ Quick Setup
 
-### 1. Download Models
+### 1. Start Db2
+Using terminal or command prompt, start Db2:
+```bash
+db2start
+```
+
+### 2. Download Models
 
 Using terminal or command prompt, navigate to the folder where you want to download the models:
 
@@ -122,7 +128,9 @@ Create `.env` file in project root:
 touch .env
 ```
 
-Add the following to `.env` (replace with your values):
+If using VS Code, open the project folder using VS Code. 
+
+From the project folder, add the following to `.env` (replace with your values):
 ```bash
 # IBM Db2 Configuration
 DB_NAME=your_database
@@ -136,7 +144,6 @@ DB_PASSWORD=your_password
 LLM_PATH=/absolute/path/to/qwen2.5-3b-instruct-q4_k_m.gguf
 EMBEDDING_MODEL_PATH=/absolute/path/to/granite-embedding-30m-english-Q6_K.gguf
 ```
-
 
 ## Usage
 
