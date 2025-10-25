@@ -2,7 +2,7 @@
 
 A Retrieval-Augmented Generation (RAG) pipeline that answers questions by grounding responses in web content stored in **IBM Db2's vector database**. This project leverages **Db2's native vector search capabilities** and the **official LangChain-Db2 connector** for seamless integration with local LLM models.
 
-## 🎓 Overview
+## 🎯 Overview
 
 This project combines several technologies to create an intelligent Q&A system that runs entirely on CPU:
 
@@ -30,7 +30,7 @@ graph TD
     E --> H
     
     H --> I[📝 Build Prompt<br/>Context + Question]
-    I --> J[🤖 Local LLM<br/>Qwen2.5 7B]
+    I --> J[🤖 Local LLM<br/>Qwen2.5 3B]
     J --> K[✅ Grounded Answer<br/>+ Source Chunks]
     
     style A fill:#e1f5ff
@@ -54,8 +54,8 @@ graph TD
 
 - Python 3.13+
 - IBM Db2 12.1.2+
-- ~8GB disk space for models
-- 8GB+ RAM recommended
+- ~4GB disk space for models
+- 8GB+ RAM (32+ cores recommended for best performance)
 - CPU-only (no GPU required)
 - `uv` package manager ([install here](https://github.com/astral-sh/uv))
 
@@ -73,29 +73,27 @@ Or download and extract the ZIP file.
 
 ### 2. Environment & Dependencies
 ```bash
-# Clear cache to avoid architecture conflicts (especially on Apple Silicon)
-uv cache clean
-
-# Remove old virtual environment if it exists
-rm -rf .venv
-
 # Create virtual environment
-uv venv
+uv venv --python $(which python3.13)
+
+# Activate virtual environment
+source .venv/bin/activate  # Linux/Mac
+# or
+.venv\Scripts\activate     # Windows
 
 # Install dependencies from requirements.txt
 uv pip install -r requirements.txt
 
-# Add pip (required for spacy model downloads)
-uv pip install pip
-
 # Download spaCy language model
 uv run python -m spacy download en_core_web_sm
-
-# Verify installation
-uv run python -c "import spacy; nlp = spacy.load('en_core_web_sm'); print('✓ Setup complete!')"
 ```
 
 ### 3. Download Models
+
+Navigate to the folder where you want to download the models:
+```bash
+cd /path/to/models  # e.g., ~/models or /storage/models
+```
 
 **Embedding Model** (30M parameters, ~17MB):
 ```bash
@@ -103,9 +101,13 @@ wget -O granite-embedding-30m-english-Q6_K.gguf \
   https://huggingface.co/lmstudio-community/granite-embedding-30m-english-GGUF/resolve/main/granite-embedding-30m-english-Q6_K.gguf
 ```
 
-**LLM Model** (7B parameters, ~4.4GB):
+**LLM Model** (3B parameters, ~2GB):
 ```bash
-wget https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf
+# Recommended: Q4_K_M quantization (better quality)
+wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf
+
+# Alternative: Q3_K_M (smaller, slightly lower quality)
+# wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q3_k_m.gguf
 ```
 
 ### 4. Configure Environment
@@ -115,7 +117,7 @@ Create `.env` file in project root:
 touch .env
 ```
 
-Add the following entries with correct values to the .env file:
+Add the following to `.env` (replace with your values):
 ```bash
 # IBM Db2 Configuration
 DB_NAME=your_database
@@ -126,31 +128,35 @@ DB_USER=your_username
 DB_PASSWORD=your_password
 
 # Model Paths (MUST be absolute paths)
-LLM_PATH=/full/path/to/text_generation_model.gguf
-EMBEDDING_MODEL_PATH=/full/path/to/embedding_generation_modeul.gguf
+LLM_PATH=/absolute/path/to/qwen2.5-3b-instruct-q4_k_m.gguf
+EMBEDDING_MODEL_PATH=/absolute/path/to/granite-embedding-30m-english-Q6_K.gguf
 ```
 
-**Example paths:**
+**Example:**
 ```bash
-# If models are in project directory
-LLM_PATH=/home/user/rag-project/Qwen2.5-7B-Instruct-Q4_K_M.gguf
-EMBEDDING_MODEL_PATH=/home/user/rag-project/granite-embedding-30m-english-Q6_K.gguf
+# Get your current directory
+pwd
 
-# Get absolute path of current directory
-pwd  # Use this output as base for your paths
+# Use the output to construct absolute paths
+LLM_PATH=/home/user/models/qwen2.5-3b-instruct-q4_k_m.gguf
+EMBEDDING_MODEL_PATH=/home/user/models/granite-embedding-30m-english-Q6_K.gguf
 ```
 
 **⚠️ Important:** 
-- Use `pwd` to get your current directory
-- Paths must be absolute (start with `/`)
-- Never commit `.env` to git
+- Use absolute paths (starting with `/`)
+- Never commit `.env` to git (it's in `.gitignore`)
+- Verify paths exist: `ls -la $LLM_PATH`
 
 ---
 
-## 🔍 Usage
+## 🚀 Usage
 
 ### Launch Jupyter
 ```bash
+# Make sure your virtual environment is activated
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+
+# Start Jupyter
 jupyter notebook rag-basic.ipynb
 ```
 
@@ -161,13 +167,23 @@ The notebook creates a `rag` chain that you can query:
 # Ask a question
 result = rag.invoke('How to build a linear regression model in Db2?')
 
-# View answer
-print(result['result'])
+# Display results (formatted)
+from IPython.display import display, Markdown
 
-# View retrieved source chunks
-for i, doc in enumerate(result['source_documents']):
-    print(f"\n--- Chunk {i+1} ---")
-    print(doc.page_content)
+markdown_output = f"""
+## 💡 Answer
+
+{result['result']}
+
+---
+
+## 📚 Retrieved Context
+"""
+
+for i, doc in enumerate(result['source_documents'], 1):
+    markdown_output += f"\n**📄 Chunk {i}**\n\n{doc.page_content}\n\n---\n"
+
+display(Markdown(markdown_output))
 ```
 
 **What happens under the hood:**
@@ -185,55 +201,67 @@ for i, doc in enumerate(result['source_documents']):
 |------|-----------|---------------|
 | **1. Web Scraping** | `trafilatura` | Fetches article from URL |
 | **2. Text Chunking** | `spaCy` + custom chunker | 200 words/chunk, 50-word overlap |
-| **3. Embeddings** | `LlamaCppEmbeddings` | Granite 30M model, CPU mode |
+| **3. Embeddings** | `LlamaCppEmbeddings` | Granite 30M, 16 threads |
 | **4. Vector Store** | `DB2VS` | EUCLIDEAN distance strategy |
 | **5. Retrieval** | `as_retriever()` | Top-3 similarity search |
-| **6. LLM** | `LlamaCpp` | Qwen2.5-7B, CPU mode |
+| **6. LLM** | `LlamaCpp` | Qwen2.5-3B, 30 threads, CPU-only |
 | **7. RAG Chain** | `RetrievalQA` | Combines retrieval + generation |
 
 ---
 
 ## 🛠️ Key Configuration
+
+### Text Chunking
 ```python
-# Text Chunking
 overlapping_sentence_chunker(
     text=article,
     max_words=200,        # Chunk size
     overlap_words=50      # Overlap between chunks
 )
+```
 
-# Embedding Model
-LlamaCppEmbeddings(
+### Embedding Model (with CPU optimization)
+```python
+embeddings = LlamaCppEmbeddings(
     model_path=EMBEDDING_MODEL_PATH,
-    n_ctx=256,            # Context window
-    n_batch=1,
-    n_gpu_layers=0        # CPU-only for embeddings
+    n_ctx=2048,           # Context window
+    n_threads=16,         # Use half your CPU cores
+    n_batch=8,            # Small batch for embeddings
+    n_gpu_layers=0        # CPU-only
 )
+```
 
-# Vector Store
-DB2VS.from_texts(
+### Vector Store
+```python
+vectorstore = DB2VS.from_texts(
     texts=chunks,
     embedding=embeddings,
     client=connection,
     table_name="Documents_EUCLIDEAN",
     distance_strategy=DistanceStrategy.EUCLIDEAN_DISTANCE
 )
+```
 
-# LLM (CPU-only configuration)
-LlamaCpp(
+### LLM (CPU-optimized configuration)
+```python
+llm = LlamaCpp(
     model_path=LLM_PATH,
     n_gpu_layers=0,       # CPU-only mode
-    max_tokens=750,       # Max response length
-    n_ctx=4096,          # Context window
+    n_threads=30,         # Use most CPU cores (leave 2 for system)
+    n_batch=512,          # Batch processing
+    max_tokens=250,       # Max response length
+    n_ctx=2048,          # Context window
     temperature=0.3,     # Low = factual, High = creative
     top_p=0.9,
     top_k=40,
-    repeat_penalty=1.1
+    repeat_penalty=1.1,
+    verbose=False        # Suppress debug output
 )
+```
 
-# Retriever
-vectorstore.as_retriever(
-    search_type="similarity",
+### Retriever
+```python
+retriever = vectorstore.as_retriever(
     search_kwargs={"k": 3}    # Return top 3 chunks
 )
 ```
@@ -242,37 +270,44 @@ vectorstore.as_retriever(
 
 ## 💭 Performance Tips (CPU Optimization)
 
-- **Reduce Context Window**: Lower `n_ctx=2048` for faster processing
-- **Limit Response Length**: Set `max_tokens=512` for quicker responses
-- **Smaller Model**: Use 3B or 1B models for better CPU performance
-- **Fewer Chunks**: Lower `k=2` to retrieve fewer documents
-- **Better Quantization**: Q4_K_M offers best speed/quality balance on CPU
-- **Batch Processing**: Process multiple questions in sequence to reuse loaded model
+**For 32 CPU cores (as tested):**
+- Use `n_threads=30` for LLM (leave 2 cores for system)
+- Use `n_threads=16` for embeddings
+- Expected speed: ~10-20 tokens/sec with 3B model
+- Response time: ~30-60 seconds for 250 tokens
+
+**General optimizations:**
+- **Smaller Context**: Lower `n_ctx=1024` if prompts are short
+- **Shorter Responses**: Set `max_tokens=150` for faster replies
+- **Smaller Model**: Try 1.5B models for even faster inference
+- **Fewer Chunks**: Set `k=2` to retrieve less context
+- **Better Quantization**: Q4_K_M offers best speed/quality balance
+- **Increase Threads**: Match `n_threads` to your CPU core count (`nproc`)
+
+**Check your CPU cores:**
+```bash
+nproc  # Linux/Mac
+echo %NUMBER_OF_PROCESSORS%  # Windows
+```
 
 ---
 
 ## 🖥️ Optional: VS Code + Jupyter Setup
 
 If using VS Code with Jupyter:
-```bash
-# Register kernel
-uv run python -m ipykernel install --user \
-  --name=python313-local \
-  --display-name "Python 3.13 (Local .venv)"
-```
 
-**In VS Code:**
-1. `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Win/Linux)
-2. Type: **Python: Select Interpreter**
-3. Press `Cmd+Shift+.` to show hidden `.venv` folder
-4. Select `.venv/bin/python` (or `.venv\Scripts\python.exe` on Windows)
-5. `Cmd+Shift+P` → **Jupyter: Select Interpreter to Start Jupyter Server**
-6. Choose the same `.venv` Python
+1. **Select Interpreter:**
+   - `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Win/Linux)
+   - Type: **Python: Select Interpreter**
+   - Select `.venv/bin/python`
 
-**If kernel doesn't appear:**
-- Select a different kernel temporarily
-- Switch back to `.venv` kernel
-- Run: `Developer: Reload Window`
+2. **Select Jupyter Kernel:**
+   - `Cmd+Shift+P` → **Jupyter: Select Interpreter to Start Jupyter Server**
+   - Choose the same `.venv` Python
+
+3. **If kernel doesn't appear:**
+   - Run: `Developer: Reload Window`
+   - Or restart VS Code
 
 ---
 
@@ -290,9 +325,53 @@ uv run python -m ipykernel install --user \
 
 ---
 
+## 📋 Project Structure
+
+```
+db2-langchain-rag-local/
+├── rag-basic.ipynb          # Main notebook
+├── requirements.txt         # Python dependencies (pinned versions)
+├── .env                     # Configuration (DO NOT COMMIT)
+├── .gitignore              # Git ignore rules
+└── README.md               # This file
+```
+
+---
+
 ## 🔐 Security Notes
 
-- ⚠️ Add `.env` to `.gitignore` - never commit credentials
-- 🔒 Use read-only Db2 credentials if possible
+- ⚠️ Never commit `.env` - it's in `.gitignore`
+- 🔒 Use read-only Db2 credentials when possible
 - 🛡️ Validate/sanitize URLs before scraping
 - 🚫 Don't expose model paths in logs or errors
+- 🔑 Rotate credentials regularly
+
+---
+
+## 📝 License
+
+[Add your license here]
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
+
+---
+
+## 📧 Contact
+
+[Add your contact information]
+
+---
+
+## 🙏 Acknowledgments
+
+- IBM Db2 team for native vector support
+- LangChain community for the Db2 connector
+- llama.cpp for efficient CPU inference
+- Qwen and IBM Granite model teams
