@@ -63,34 +63,11 @@ graph TD
 
 ## ⚙️ Quick Setup
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/shaikhq/db2-langchain-rag-local.git
-cd db2-langchain-rag-local
-```
-
-Or download and extract the ZIP file.
-
-### 2. Environment & Dependencies
-```bash
-# Create virtual environment
-uv venv --python $(which python3.13)
-
-# Install dependencies from requirements.txt
-uv pip install -r requirements.txt
-
-# Install pip (required for spacy model downloads)
-uv pip install pip
-
-# Download spaCy language model
-uv run python -m spacy download en_core_web_sm
-```
-
-### 3. Download Models
+### 1. Download Models
 
 Navigate to the folder where you want to download the models:
 ```bash
-cd /path/to/models  # e.g., ~/models or /storage/models
+cd /path/to/models  # e.g., /more_storage/models
 ```
 
 **Embedding Model** (30M parameters, ~17MB):
@@ -103,6 +80,29 @@ wget -O granite-embedding-30m-english-Q6_K.gguf \
 ```bash
 wget -O qwen2.5-3b-instruct-q4_k_m.gguf \
   https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf
+```
+
+### 2. Clone Repository
+```bash
+git clone https://github.com/shaikhq/db2-langchain-rag-local.git
+cd db2-langchain-rag-local
+```
+
+Or download and extract the ZIP file.
+
+### 3. Environment & Dependencies
+```bash
+# Create virtual environment
+uv venv --python $(which python3.13)
+
+# Install dependencies from requirements.txt
+uv pip install -r requirements.txt
+
+# Install pip (required for spacy model downloads)
+uv pip install pip
+
+# Download spaCy language model
+uv run python -m spacy download en_core_web_sm
 ```
 
 ### 4. Configure Environment
