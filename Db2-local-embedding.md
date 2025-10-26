@@ -19,6 +19,11 @@ build/bin/llama-server -m granite-embedding-30m-english-Q6_K.gguf --embedding --
 
 Server will run on `http://127.0.0.1:8080`
 
+### 1. Connect to Db2:
+```sql
+CONNECT TO SAMPLE;
+```
+
 ### 1. Drop table if it already exists:
 ```sql
 DROP TABLE ANSWERS;
