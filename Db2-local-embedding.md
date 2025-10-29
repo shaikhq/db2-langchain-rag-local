@@ -47,7 +47,7 @@ INSERT INTO ANSWERS (content, embedding) VALUES
   ('Toronto is the most populated city in Canada, with millions of residents.', NULL),
   ('The skyline of Toronto is dominated by a tall observation tower visited by tourists worldwide.', NULL),
   ('The local basketball team became national champions in 2019, making the city proud.', NULL),
-  ('Travelers flying internationally often depart from Pearson, the city''s main airport.', NULL),
+  ('Travelers flying internationally often depart from Pearson, the main airport of the city.', NULL),
   ('Toronto lies along the edge of Lake Ontario, giving it a waterfront character.', NULL);
 ```
 
