@@ -26,6 +26,7 @@ CONNECT TO SAMPLE;
 
 ### 1. Drop table if it already exists:
 ```sql
+DROP EXTERNAL MODEL granite30;
 DROP TABLE ANSWERS;
 ```
 
