@@ -1,4 +1,4 @@
-# RAG with IBM Db2 & Local LLMs
+# RAG with IBM Db2 & Local LLMs in Red Hat Linux
 
 A Retrieval-Augmented Generation (RAG) pipeline that answers questions by grounding responses in web content stored in **IBM Db2's vector database**. This project leverages **Db2's native vector search capabilities** and the **official LangChain-Db2 connector** for seamless integration with local LLM models.
 
